@@ -37,9 +37,9 @@ typedef enum {false, true} bool;
  * local (internal linkage) function declarations
 \*===========================================================================*/
 static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdlineflags* r);
-static void cmdlinefags_sort(const struct cmdlineflags** cmdlineflags, size_t n_options, const struct cmdlineflags* it);
+static void cmdlinefags_add(const struct cmdlineflags** cmdlineflags, size_t n_options, const struct cmdlineflags* it);
 static int cmdlinefags_build_help_msg(const struct cmdlineflags** cmdlineflags, size_t n_options, char* msg, unsigned size);
-static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n);
+static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_options);
 
 /*===========================================================================*\
  * local (internal linkage) object definitions
@@ -307,7 +307,7 @@ static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdli
     return status;
 }
 
-static void cmdlinefags_sort(
+static void cmdlinefags_add(
     const struct cmdlineflags** cmdlineflags, size_t n_options, const struct cmdlineflags* it)
 {
     size_t i;
@@ -405,44 +405,38 @@ static int cmdlinefags_build_help_msg(
     return n;
 }
 
-static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n)
+static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_options)
 {
     const struct cmdlineflags* const shortoptions_start_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_START;
     const struct cmdlineflags* const shortoptions_end_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_END;
-    ptrdiff_t n_shortoptions =  shortoptions_end_addr - shortoptions_start_addr;
+    ptrdiff_t n_shortoptions_distance =  shortoptions_end_addr - shortoptions_start_addr;
 
     const struct cmdlineflags* const longoptions_start_addr = &CMDLINEFLAGS_LONGOPTIONS_SECTION_START;
     const struct cmdlineflags* const longoptions_end_addr = &CMDLINEFLAGS_LONGOPTIONS_SECTION_END;
-    ptrdiff_t n_longoptions =  longoptions_end_addr - longoptions_start_addr;
+    ptrdiff_t n_longoptions_distance =  longoptions_end_addr - longoptions_start_addr;
 
-    const struct cmdlineflags* it;
-
-    if (--n_shortoptions < 0)
+    if (--n_shortoptions_distance < 0)
         return NULL;
 
-    if (--n_longoptions < 0)
+    if (--n_longoptions_distance < 0)
         return NULL;
 
-    size_t n_options = n_shortoptions + n_longoptions;
-    size_t n_options_cnt = 0;
+    size_t distance = n_shortoptions_distance + n_longoptions_distance;
+    size_t n = 0;
 
     const struct cmdlineflags** cmdlineflags =
-        calloc(n_options, sizeof(struct cmdlineflags*));
+        calloc(distance, sizeof(struct cmdlineflags*));
     if (cmdlineflags != NULL) {
-        for (it = shortoptions_start_addr; it < shortoptions_end_addr; ++it) {
-            if (it->module != NULL) {
-                cmdlinefags_sort(cmdlineflags, n_options_cnt, it);
-                n_options_cnt++;
-            }
-        }
+        const struct cmdlineflags* it;
 
-        for (it = longoptions_start_addr; it < longoptions_end_addr; ++it) {
-            if ((it->module != NULL) && (it->sibbling != it)) {
-                cmdlinefags_sort(cmdlineflags, n_options_cnt, it);
-                n_options_cnt++;
-            }
-        }
+        for (it = shortoptions_start_addr; it < shortoptions_end_addr; ++it)
+            if (it->module != NULL)
+                cmdlinefags_add(cmdlineflags, n++, it);
+
+        for (it = longoptions_start_addr; it < longoptions_end_addr; ++it)
+            if ((it->module != NULL) && (it->sibbling != it))
+                cmdlinefags_add(cmdlineflags, n++, it);
     }
 
-    return *n = n_options_cnt, cmdlineflags;
+    return *n_options = n, cmdlineflags;
 }

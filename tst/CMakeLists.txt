@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 
-project(cmdlineflags_test VERSION 1.0.0)
+project(cmdlineflags_tests VERSION 1.0.0)
 
 # sets various paths used in e.g. pc.in files as well as install target
 include(GNUInstallDirs)

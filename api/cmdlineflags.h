@@ -37,7 +37,7 @@
  * preprocessor #define constants and macros
 \*===========================================================================*/
 #if !defined(CMDLINEFLAGS_SECTION_PREFIX)
-    #define CMDLINEFLAGS_SECTION_PREFIX cmdlineflags
+    #define CMDLINEFLAGS_SECTION_PREFIX lts_cmdlineflags
 #endif
 
 #define CMDLINEFLAGS_SUCCESS  (0)
