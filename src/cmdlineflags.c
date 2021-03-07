@@ -69,7 +69,7 @@ static inline const struct cmdlineflags*
     const struct cmdlineflags* it;
 
     if (module == NULL)
-        module = CMDLINEFLAGS_XSTR(CMDLINEFLAGS_NO_MODULE);
+        module = CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE);
 
     for (it = cmdlineflags_start_addr; it < cmdlineflags_end_addr; ++it)
         if ((it->module != NULL) && (!strcmp(it->module, module)))
@@ -87,7 +87,7 @@ static inline const struct cmdlineflags*
     const struct cmdlineflags* it;
 
     if (module == NULL)
-        module = CMDLINEFLAGS_XSTR(CMDLINEFLAGS_NO_MODULE);
+        module = CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE);
 
     for (it = cmdlineflags_start_addr; it < cmdlineflags_end_addr; ++it)
         if ((it->module != NULL) && (!strcmp(it->module, module)))
@@ -283,10 +283,10 @@ static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdli
 
     status = strcmp(l->module, r->module);
     if (status) {
-        if (!strcmp(l->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_NO_MODULE)))
+        if (!strcmp(l->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE)))
             return -1;
         else
-        if (!strcmp(r->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_NO_MODULE)))
+        if (!strcmp(r->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE)))
             return +1;
         else
             return status;
@@ -337,7 +337,7 @@ static int cmdlinefags_build_help_msg(
     for (i = 0; i < n_options; ++i) {
         const struct cmdlineflags* it = cmdlineflags[i];
 
-        if (strcmp(it->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_NO_MODULE))) {
+        if (strcmp(it->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE))) {
             if ((module == NULL) || (strcmp(module, it->module))) {
                 module = it->module;
                 status = snprintf(msg, remaining, "\n%s\n", it->module);

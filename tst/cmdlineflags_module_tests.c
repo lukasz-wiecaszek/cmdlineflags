@@ -35,16 +35,16 @@
 static int handle_expected_cnt_options(const struct cmdlineflags_option* option, const char* argument);
 
 static int v_option_expected_cnt = 0;
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_NO_MODULE, i, expected_v_cnt, \
+CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, i, expected_v_cnt, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_expected_cnt_options, "sets expected v counter");
 
 static int c_option_expected_cnt = 0;
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_NO_MODULE, j, expected_c_cnt, \
+CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, j, expected_c_cnt, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_expected_cnt_options, "sets expected c counter");
 
 static int h_option_actual_cnt = 0;
 static int handle_h_option(const struct cmdlineflags_option* option);
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_NO_MODULE, h, help, \
+CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, h, help, \
    CMDLINEFLAGS_NO_ARGUMENT, handle_h_option, "prints help message");
 
 static int v_option_actual_cnt = 0;
@@ -93,9 +93,6 @@ int main(int argc, char* argv[])
         status = cmdlineflags_get_help_msg(help_message, sizeof(help_message));
         if (status < 0)
             break;
-
-fprintf(stdout, "help message:\n%s", help_message);
-
 
         status = cmdlineflags_get_cfg(NULL);
         if (status == 0)

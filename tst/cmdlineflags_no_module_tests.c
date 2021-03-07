@@ -41,29 +41,29 @@
 static int handle_expected_cnt_options(const struct cmdlineflags_option* option, const char* argument);
 
 static int v_option_expected_cnt = 0;
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_NO_MODULE, i, expected_v_cnt, \
+CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, i, expected_v_cnt, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_expected_cnt_options, "sets expected v counter");
 
 static int c_option_expected_cnt = 0;
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_NO_MODULE, j, expected_c_cnt, \
+CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, j, expected_c_cnt, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_expected_cnt_options, "sets expected c counter");
 
 static int v_option_actual_cnt = 0;
 static int handle_v_option(const struct cmdlineflags_option* option);
 
-CMDLINEFLAGS_DEFINE_SHORT_OPTION(CMDLINEFLAGS_NO_MODULE, v, \
+CMDLINEFLAGS_DEFINE_SHORT_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, v, \
    CMDLINEFLAGS_NO_ARGUMENT, handle_v_option, "prints version information");
 
-CMDLINEFLAGS_DEFINE_LONG_OPTION(CMDLINEFLAGS_NO_MODULE, version, \
+CMDLINEFLAGS_DEFINE_LONG_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, version, \
    CMDLINEFLAGS_NO_ARGUMENT, handle_v_option, "prints version information");
 
 static int c_option_actual_cnt = 0;
 static int handle_c_option(const struct cmdlineflags_option* option, const char* argument);
 
-CMDLINEFLAGS_DEFINE_SHORT_OPTION(CMDLINEFLAGS_NO_MODULE, c, \
+CMDLINEFLAGS_DEFINE_SHORT_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, c, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_c_option, "configuration file");
 
-CMDLINEFLAGS_DEFINE_LONG_OPTION(CMDLINEFLAGS_NO_MODULE, configuration, \
+CMDLINEFLAGS_DEFINE_LONG_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, configuration, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_c_option, "configuration file");
 
 /*===========================================================================*\
@@ -94,8 +94,6 @@ int main(int argc, char* argv[])
         status = cmdlineflags_get_help_msg(help_message, sizeof(help_message));
         if (status < 0)
             break;
-
-fprintf(stdout, "help message:\n%s", help_message);
 
         status = cmdlineflags_get_cfg(NULL);
         if (status == 0)
