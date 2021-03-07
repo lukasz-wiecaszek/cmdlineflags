@@ -17,10 +17,19 @@ Please have a look at the following examples:
 ```
 
 Here we have:
- (1) 1 option element (help) and 1 non-option element (merge)
- (2) 1 option element (no-ff) and 2 non-option elements (merge, origin/feature/1234567)
- (3) 1 option element (h) and no non-options
- (4) 2 non-option elements
+
+```
+  (1) 1 option element (help) and 1 non-option element (merge)
+```
+```
+  (2) 1 option element (no-ff) and 2 non-option elements (merge, origin/feature/1234567)
+```
+```
+  (3) 1 option element (h) and no non-options
+```
+```
+  (4) 2 non-option elements
+```
 
 Probably the most common library to parse such command line flags is POSIX's getopt().
 Using getopt() terminology an element that starts with '-' (and is not exactly '-')
@@ -125,5 +134,5 @@ void print_help_message(const struct cmdlineflags_option* option)
     fprintf(stdout, "usage: progname [-h|--help] [-v] [--version]\n%s", help_message);
     exit(EXIT_SUCCESS);
 }
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_NO_MODULE, h, help, CMDLINEFLAGS_NO_ARGUMENT, print_help_message, "prints help message");
+CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, h, help, CMDLINEFLAGS_NO_ARGUMENT, print_help_message, "prints help message");
 ```
