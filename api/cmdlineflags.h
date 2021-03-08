@@ -76,13 +76,12 @@
         __attribute__((__used__))                                                                              \
         __attribute__((aligned(CMDLINEFLAGS_ALIGN))) =                                                         \
         {{                                                                                                     \
-            .module               = #_module_,                                                                 \
-            .option.type          = CMDLINEFLAGS_SHORTOPTION,                                                  \
-            .option.u.shortoption = #_shortoption_[0],                                                         \
-            .flags                = _flags_,                                                                   \
-            .u.f ## _flags_       = _function_,                                                                \
-            .help                 = _help_,                                                                    \
-            .sibbling             = ((const struct cmdlineflags*)0)                                            \
+            .module = #_module_,                                                                               \
+            .option = {.type = CMDLINEFLAGS_SHORTOPTION, .u = {.shortoption = #_shortoption_[0]}},             \
+            .flags = _flags_,                                                                                  \
+            .u = {.f ## _flags_ = _function_},                                                                 \
+            .help = _help_,                                                                                    \
+            .sibbling = ((const struct cmdlineflags*)0)                                                        \
         }}
 
 #define __CMDLINEFLAGS_DEFINE_SHORT_OPTION_B(_module_, _shortoption_, _flags_, _function_, _help_, _sibbling_) \
@@ -92,13 +91,12 @@
         __attribute__((__used__))                                                                              \
         __attribute__((aligned(CMDLINEFLAGS_ALIGN))) =                                                         \
         {{                                                                                                     \
-            .module               = #_module_,                                                                 \
-            .option.type          = CMDLINEFLAGS_SHORTOPTION,                                                  \
-            .option.u.shortoption = #_shortoption_[0],                                                         \
-            .flags                = _flags_,                                                                   \
-            .u.f ## _flags_       = _function_,                                                                \
-            .help                 = _help_,                                                                    \
-            .sibbling             = cmdlineflags_longoptions_ ## _module_ ## _ ## _sibbling_                   \
+            .module = #_module_,                                                                               \
+            .option = {.type = CMDLINEFLAGS_SHORTOPTION, .u = {.shortoption = #_shortoption_[0]}},             \
+            .flags = _flags_,                                                                                  \
+            .u = {.f ## _flags_ = _function_},                                                                 \
+            .help = _help_,                                                                                    \
+            .sibbling = cmdlineflags_longoptions_ ## _module_ ## _ ## _sibbling_                               \
         }}
 
 #define __CMDLINEFLAGS_DEFINE_LONG_OPTION_A(_module_, _longoption_, _flags_, _function_, _help_)               \
@@ -108,13 +106,12 @@
         __attribute__((__used__))                                                                              \
         __attribute__((aligned(CMDLINEFLAGS_ALIGN))) =                                                         \
         {{                                                                                                     \
-            .module              = #_module_,                                                                  \
-            .option.type         = CMDLINEFLAGS_LONGOPTION,                                                    \
-            .option.u.longoption = #_longoption_,                                                              \
-            .flags               = _flags_,                                                                    \
-            .u.f ## _flags_      = _function_,                                                                 \
-            .help                = _help_,                                                                     \
-            .sibbling            = ((const struct cmdlineflags*)0)                                             \
+            .module = #_module_,                                                                               \
+            .option = {.type = CMDLINEFLAGS_LONGOPTION, .u = {.longoption = #_longoption_}},                   \
+            .flags = _flags_,                                                                                  \
+            .u = {.f ## _flags_ = _function_},                                                                 \
+            .help = _help_,                                                                                    \
+            .sibbling = ((const struct cmdlineflags*)0)                                                        \
         }}
 
 #define __CMDLINEFLAGS_DEFINE_LONG_OPTION_B(_module_, _longoption_, _flags_, _function_, _help_)               \
@@ -124,13 +121,12 @@
         __attribute__((__used__))                                                                              \
         __attribute__((aligned(CMDLINEFLAGS_ALIGN))) =                                                         \
         {{                                                                                                     \
-            .module              = #_module_,                                                                  \
-            .option.type         = CMDLINEFLAGS_LONGOPTION,                                                    \
-            .option.u.longoption = #_longoption_,                                                              \
-            .flags               = _flags_,                                                                    \
-            .u.f ## _flags_      = _function_,                                                                 \
-            .help                = _help_,                                                                     \
-            .sibbling            = cmdlineflags_longoptions_ ## _module_ ## _ ## _longoption_                  \
+            .module = #_module_,                                                                               \
+            .option = {.type = CMDLINEFLAGS_LONGOPTION, .u = {.longoption = #_longoption_}},                   \
+            .flags = _flags_,                                                                                  \
+            .u = {.f ## _flags_ = _function_},                                                                 \
+            .help = _help_,                                                                                    \
+            .sibbling = cmdlineflags_longoptions_ ## _module_ ## _ ## _longoption_                             \
         }}
 
 #define CMDLINEFLAGS_DEFINE_SHORT_OPTION(_module_, _shortoption_, _flags_, _function_, _help_)                 \
@@ -153,12 +149,15 @@ struct cmdlineflags_cfg
     int emit_debug_messages;
 };
 
+enum cmdlineflags_type
+{
+    CMDLINEFLAGS_SHORTOPTION,
+    CMDLINEFLAGS_LONGOPTION
+};
+
 struct cmdlineflags_option
 {
-    enum {
-        CMDLINEFLAGS_SHORTOPTION,
-        CMDLINEFLAGS_LONGOPTION
-    } type;
+    enum cmdlineflags_type type;
     union {
         char shortoption;
         const char* longoption;
