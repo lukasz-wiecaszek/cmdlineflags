@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /*===========================================================================*\
  * project header files
@@ -27,7 +28,6 @@
 /*===========================================================================*\
  * local type definitions
 \*===========================================================================*/
-typedef enum {false, true} bool;
 
 /*===========================================================================*\
  * global (external linkage) object definitions
@@ -39,7 +39,7 @@ typedef enum {false, true} bool;
 static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdlineflags* r);
 static void cmdlinefags_add(const struct cmdlineflags** cmdlineflags, size_t n_options, const struct cmdlineflags* it);
 static int cmdlinefags_build_help_msg(const struct cmdlineflags** cmdlineflags, size_t n_options, char* msg, unsigned size);
-static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_options);
+static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_options, bool sort);
 
 /*===========================================================================*\
  * local (internal linkage) object definitions
@@ -220,7 +220,7 @@ int cmdlineflags_parse(int argc, char * const argv[])
     return argv_index;
 }
 
-int cmdlineflags_get_help_msg(char* msg, unsigned size)
+int cmdlineflags_get_help_msg(char* msg, unsigned size, bool sort)
 {
     int n;
     size_t n_options;
@@ -231,7 +231,7 @@ int cmdlineflags_get_help_msg(char* msg, unsigned size)
         msg = null_msg_buffer;
     }
 
-    cmdlineflags = cmdlineflags_combine_options(&n_options);
+    cmdlineflags = cmdlineflags_combine_options(&n_options, sort);
     if (cmdlineflags == NULL)
         return CMDLINEFLAGS_FAILURE;
 
@@ -405,7 +405,7 @@ static int cmdlinefags_build_help_msg(
     return n;
 }
 
-static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_options)
+static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_options, bool sort)
 {
     const struct cmdlineflags* const shortoptions_start_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_START;
     const struct cmdlineflags* const shortoptions_end_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_END;
@@ -429,13 +429,33 @@ static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_option
     if (cmdlineflags != NULL) {
         const struct cmdlineflags* it;
 
-        for (it = shortoptions_start_addr; it < shortoptions_end_addr; ++it)
-            if (it->module != NULL)
-                cmdlinefags_add(cmdlineflags, n++, it);
+        for (it = shortoptions_start_addr; it < shortoptions_end_addr; ++it) {
+            if (it->module != NULL) {
+                if (sort)
+                    cmdlinefags_add(cmdlineflags, n++, it);
+                else
+                    cmdlineflags[n++] = it;
+            }
+        }
 
-        for (it = longoptions_start_addr; it < longoptions_end_addr; ++it)
-            if ((it->module != NULL) && (it->sibbling != it))
-                cmdlinefags_add(cmdlineflags, n++, it);
+
+        for (it = longoptions_start_addr; it < longoptions_end_addr; ++it) {
+            if ((it->module != NULL) && (it->sibbling != it)) {
+                if (sort)
+                    cmdlinefags_add(cmdlineflags, n++, it);
+                else
+                    cmdlineflags[n++] = it;
+            }
+        }
+
+        if (!sort) {
+            size_t i;
+            for (i = 0; i < n / 2; ++i) {
+                const struct cmdlineflags* it = cmdlineflags[i];
+                cmdlineflags[i] = cmdlineflags[n - i - 1];
+                cmdlineflags[n - i - 1] = it;
+            }
+        }
     }
 
     return *n_options = n, cmdlineflags;

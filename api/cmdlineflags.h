@@ -28,6 +28,7 @@
 /*===========================================================================*\
  * system header files
 \*===========================================================================*/
+#include <stdbool.h>
 
 /*===========================================================================*\
  * project header files
@@ -224,12 +225,13 @@ LTS_EXTERN int cmdlineflags_parse(int argc, char * const argv[]);
  *
  * @param[out] msg Pointer to the output buffer to be filled with message string.
  * @param[in] size Maximum number of bytes that shall be copied to the output buffer.
+ * @param[in] sort When true, provides sorted view of all options, when false, no sorting is performed.
  *
  * @return Number of characters constituting the help message
  *         (excluding the terminating null byte ('\0')) or a negative value
  *         if an error was encountered.
  */
-LTS_EXTERN int cmdlineflags_get_help_msg(char* msg, unsigned size);
+LTS_EXTERN int cmdlineflags_get_help_msg(char* msg, unsigned size, bool sort);
 
 /**
  * Retrieves current cmdlineflags configuration.

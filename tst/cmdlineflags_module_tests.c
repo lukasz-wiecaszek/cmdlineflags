@@ -86,11 +86,11 @@ int main(int argc, char* argv[])
         struct cmdlineflags_cfg cfg;
         char help_message[1024];
 
-        status = cmdlineflags_get_help_msg(NULL, 0);
+        status = cmdlineflags_get_help_msg(NULL, 0, false);
         if (status < 0)
             break;
 
-        status = cmdlineflags_get_help_msg(help_message, sizeof(help_message));
+        status = cmdlineflags_get_help_msg(help_message, sizeof(help_message), true);
         if (status < 0)
             break;
 
