@@ -61,6 +61,42 @@ static struct cmdlineflags_cfg cmdlineflags_cfg = {
 /*===========================================================================*\
  * static inline (internal linkage) function definitions
 \*===========================================================================*/
+static inline int cmdlineflags_longoptionscmp(char const* str1, char const* str2)
+{
+    char c1;
+    char c2;
+    int d;
+
+    do {
+        c1 = *str1;
+        if (c1 == '_')
+            c1 = '-';
+
+        c2 = *str2;
+        if (c2 == '_')
+            c2 = '-';
+
+        d = c1 - c2;
+    } while (d == 0 && *str1++ && *str2++);
+
+    return d;
+}
+
+static inline char* cmdlineflags_underscore2dash(char* dest, const char* src, size_t n)
+{
+    if (n != 0) {
+        char c;
+        n--;
+        for (size_t i = 0; (i < n) && (*src != '\0'); ++i) {
+            c = *src++;
+            *dest++ = c != '_' ? c : '-'; /* I shouldn't leave it as it is ;-) */
+        }
+        *dest = '\0';
+    }
+
+    return dest;
+}
+
 static inline const struct cmdlineflags*
     cmdlineflags_get_shortoption(const char* module, char shortoption)
 {
@@ -91,7 +127,7 @@ static inline const struct cmdlineflags*
 
     for (it = cmdlineflags_start_addr; it < cmdlineflags_end_addr; ++it)
         if ((it->module != NULL) && (!strcmp(it->module, module)))
-            if (!strcmp(it->option.u.longoption, longoption))
+            if (!cmdlineflags_longoptionscmp(it->option.u.longoption, longoption))
                 return it;
 
     return NULL;
@@ -325,6 +361,7 @@ static int cmdlinefags_build_help_msg(
 {
     int n;
     char prefix[128];
+    char longoption[sizeof(prefix)];
     int status;
     size_t remaining;
     size_t i;
@@ -365,22 +402,22 @@ static int cmdlinefags_build_help_msg(
                         it->option.u.shortoption);
             }
             else {
+                cmdlineflags_underscore2dash(longoption, sibbling->option.u.longoption, sizeof(longoption));
                 if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
                     status = snprintf(prefix, sizeof(prefix), "-%c, --%s",
-                        it->option.u.shortoption, sibbling->option.u.longoption);
+                        it->option.u.shortoption, longoption);
                 else
                     status = snprintf(prefix, sizeof(prefix), "-%c, --%s <arg>",
-                        it->option.u.shortoption, sibbling->option.u.longoption);
+                        it->option.u.shortoption, longoption);
             }
         }
         else
         if (it->option.type == CMDLINEFLAGS_LONGOPTION) {
+            cmdlineflags_underscore2dash(longoption, it->option.u.longoption, sizeof(longoption));
             if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
-                status = snprintf(prefix, sizeof(prefix), "--%s",
-                    it->option.u.longoption);
+                status = snprintf(prefix, sizeof(prefix), "--%s", longoption);
             else
-                status = snprintf(prefix, sizeof(prefix), "--%s <arg>",
-                    it->option.u.longoption);
+                status = snprintf(prefix, sizeof(prefix), "--%s <arg>", longoption);
         }
         else {
             /* do nothing */
