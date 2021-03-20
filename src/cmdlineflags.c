@@ -208,11 +208,17 @@ int cmdlineflags_parse(int argc, char * const argv[])
                                 return free((void*)longoption), argv_index + 1;
                         }
                         else
-                            PRINT_ERROR("%s: option '%s' requires an argument\n", argv[0], longoption);
+                            PRINT_ERROR("%s: option '--%s' requires an argument\n", argv[0], longoption);
                     }
                 }
-                else
-                    PRINT_ERROR("%s: unrecognized option '--%s'\n", argv[0], longoption);
+                else {
+                    if (module) {
+                        PRINT_ERROR("%s: unrecognized option '--%s' for '%s' module\n", argv[0], longoption, module);
+                    }
+                    else {
+                        PRINT_ERROR("%s: unrecognized option '--%s'\n", argv[0], longoption);
+                    }
+                }
 
                 free((void*)longoption);
             }
@@ -243,11 +249,17 @@ int cmdlineflags_parse(int argc, char * const argv[])
                                     return argv_index + 1;
                             }
                             else
-                                PRINT_ERROR("%s: option requires an argument -- '%c'\n", argv[0], c);
+                                PRINT_ERROR("%s: option '-%c' requires an argument\n", argv[0], c);
                         }
                     }
-                    else
-                        PRINT_ERROR("%s: invalid option -- '%c'\n", argv[0], c);
+                    else {
+                        if (module) {
+                            PRINT_ERROR("%s: unrecognized option '-%c' for '%s' module\n", argv[0], c, module);
+                        }
+                        else {
+                            PRINT_ERROR("%s: unrecognized option '-%c'\n", argv[0], c);
+                        }
+                    }
                 }
             }
         }
