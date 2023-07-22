@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 
-project(cmdlineflags VERSION 1.0.0)
+project(cmdlineflags VERSION 1.0.1)
 
 # sets various paths used in e.g. pc.in files as well as install target
 include(GNUInstallDirs)
@@ -21,14 +21,7 @@ message(STATUS "CMAKE_SOURCE_DIR:         " ${CMAKE_SOURCE_DIR})
 # this is the directory where the currently processed CMakeLists.txt is located in
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
 
-# CMDLINEFLAGS_SUBDIRECTORY_USAGE is set to TRUE when cmdlineflags is included
-# as subproject (via add_subdirectory()) in the source tree  of a project that uses it.
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-    set(CMDLINEFLAGS_SUBDIRECTORY_USAGE FALSE)
-else()
-    set(CMDLINEFLAGS_SUBDIRECTORY_USAGE TRUE)
-endif()
-
+option(BUILD_SHARED_LIBS  "Build shared libraries" ON)
 option(CMDLINEFLAGS_TESTS "Enable testing" OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -61,6 +54,15 @@ set(CMDLINEFLAGS_SRC_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+configure_file(version.h.in version.h)
+
+#------------------------------------------------------------------------------
+#                             TARGET(S) DEFINITION(S)
+#------------------------------------------------------------------------------
+set(CMDLINEFLAGS_PUBLIC_HEADERS
+    ${CMDLINEFLAGS_API_DIR}/cmdlineflags.h
+)
+
 set(CMDLINEFLAGS_SRCS
     ${CMDLINEFLAGS_SRC_DIR}/cmdlineflags.c
 )
@@ -72,8 +74,17 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMDLINEFLAGS_API_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
     PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR} // this is the directory where 'version.h' will be configured
         ${CMDLINEFLAGS_INC_DIR}
+)
+
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        PUBLIC_HEADER ${CMDLINEFLAGS_PUBLIC_HEADERS}
 )
 
 #------------------------------------------------------------------------------
@@ -84,20 +95,20 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-    PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-)
-
-install(DIRECTORY ${CMDLINEFLAGS_API_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-)
-
-install(EXPORT ${PROJECT_NAME}-targets
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
 install(FILES ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+# Add all targets to the install-tree export set
+install(EXPORT ${PROJECT_NAME}-targets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+# Add all targets to the build-tree export set
+export(EXPORT ${PROJECT_NAME}-targets
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}-targets.cmake
 )
 
 #------------------------------------------------------------------------------

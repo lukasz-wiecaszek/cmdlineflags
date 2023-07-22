@@ -17,6 +17,7 @@
 /*===========================================================================*\
  * project header files
 \*===========================================================================*/
+#include <version.h>
 #include <cmdlineflags.h>
 
 /*===========================================================================*\
@@ -146,6 +147,11 @@ static inline bool cmdlineflags_is_longoption(const char* option)
 /*===========================================================================*\
  * global (external linkage) function definitions
 \*===========================================================================*/
+const char* cmdlineflags_version(void)
+{
+    return PROJECT_VER;
+}
+
 int cmdlineflags_parse(int argc, char * const argv[])
 {
     int argv_index;

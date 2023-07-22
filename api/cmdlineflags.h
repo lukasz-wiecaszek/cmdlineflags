@@ -195,6 +195,13 @@ LTS_EXTERN const struct cmdlineflags CMDLINEFLAGS_LONGOPTIONS_SECTION_END;
  * function forward declarations (external linkage)
 \*===========================================================================*/
 /**
+ * Gets version of this library.
+ *
+ * @return Null terminated string describing version of this library.
+ */
+LTS_EXTERN const char* cmdlineflags_version(void);
+
+/**
  * Parses the command-line arguments.
  *
  * This function is in many aspects very similar to POSIX's getopt.

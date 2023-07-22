@@ -31,3 +31,5 @@
 # VSCODE
 .vscode/*
 
+# CMake build
+build/*
