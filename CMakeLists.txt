@@ -21,8 +21,13 @@ message(STATUS "CMAKE_SOURCE_DIR:         " ${CMAKE_SOURCE_DIR})
 # this is the directory where the currently processed CMakeLists.txt is located in
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
 
-option(BUILD_SHARED_LIBS  "Build shared libraries" ON)
-option(CMDLINEFLAGS_TESTS "Enable testing" OFF)
+option(BUILD_SHARED_LIBS        "Build shared libraries" ON)
+option(BUILD_CMDLINEFLAGS_DOCS  "Build documentation" OFF)
+option(BUILD_CMDLINEFLAGS_TESTS "Enable testing" OFF)
+
+if(BUILD_CMDLINEFLAGS_DOCS)
+    find_package(Doxygen REQUIRED)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -38,7 +43,7 @@ if("${CMAKE_BUILD_TYPE_LOWER}" STREQUAL "debug")
     add_compile_options(-ggdb3)
 endif()
 
-if(CMDLINEFLAGS_TESTS)
+if(BUILD_CMDLINEFLAGS_TESTS)
     add_compile_options(-fprofile-arcs -ftest-coverage)
 endif()
 
@@ -112,9 +117,25 @@ export(EXPORT ${PROJECT_NAME}-targets
 )
 
 #------------------------------------------------------------------------------
+#                                DOCUMENTATION
+#------------------------------------------------------------------------------
+if(DOXYGEN_FOUND)
+    set(DOXYGEN_IN  ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT})
+
+    add_custom_target(docs ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
+endif(DOXYGEN_FOUND)
+
+#------------------------------------------------------------------------------
 #                                    TESTS
 #------------------------------------------------------------------------------
-if(CMDLINEFLAGS_TESTS)
+if(BUILD_CMDLINEFLAGS_TESTS)
     enable_testing()
     add_subdirectory(tst)
-endif()
+endif(BUILD_CMDLINEFLAGS_TESTS)
