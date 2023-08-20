@@ -41,28 +41,28 @@
     #define CMDLINEFLAGS_SECTION_PREFIX lts_cmdlineflags
 #endif
 
-#define CMDLINEFLAGS_SUCCESS  (0)
+#define CMDLINEFLAGS_SUCCESS (0)
 #define CMDLINEFLAGS_FAILURE (-1)
 
-#define CMDLINEFLAGS_ALIGN 32
-#define CMDLINEFLAGS_STRINGIFY(x) #x
-#define CMDLINEFLAGS_XSTR(x) CMDLINEFLAGS_STRINGIFY(x)
-#define CMDLINEFLAGS_CONCATENATE(a, b) a ## b
+#define CMDLINEFLAGS_ALIGN             32
+#define CMDLINEFLAGS_STRINGIFY(x)      #x
+#define CMDLINEFLAGS_XSTR(x)           CMDLINEFLAGS_STRINGIFY(x)
+#define CMDLINEFLAGS_CONCATENATE(a, b) a##b
 
-#define CMDLINEFLAGS_CONCATENATE_SECTION_SHORTOPTIONS(section)  CMDLINEFLAGS_CONCATENATE(section, _shortoptions)
-#define CMDLINEFLAGS_CONCATENATE_SECTION_LONGOPTIONS(section)   CMDLINEFLAGS_CONCATENATE(section, _longoptions)
-#define CMDLINEFLAGS_CONCATENATE_SECTION_START(section)         CMDLINEFLAGS_CONCATENATE(__start_, section)
-#define CMDLINEFLAGS_CONCATENATE_SECTION_END(section)           CMDLINEFLAGS_CONCATENATE(__stop_, section)
+#define CMDLINEFLAGS_CONCATENATE_SECTION_SHORTOPTIONS(section) CMDLINEFLAGS_CONCATENATE(section, _shortoptions)
+#define CMDLINEFLAGS_CONCATENATE_SECTION_LONGOPTIONS(section)  CMDLINEFLAGS_CONCATENATE(section, _longoptions)
+#define CMDLINEFLAGS_CONCATENATE_SECTION_START(section)        CMDLINEFLAGS_CONCATENATE(__start_, section)
+#define CMDLINEFLAGS_CONCATENATE_SECTION_END(section)          CMDLINEFLAGS_CONCATENATE(__stop_, section)
 
-#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID     CMDLINEFLAGS_CONCATENATE_SECTION_SHORTOPTIONS(CMDLINEFLAGS_SECTION_PREFIX)
-#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_NAME   CMDLINEFLAGS_XSTR(CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID)
-#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_START  CMDLINEFLAGS_CONCATENATE_SECTION_START(CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID)
-#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_END    CMDLINEFLAGS_CONCATENATE_SECTION_END(CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID)
+#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID    CMDLINEFLAGS_CONCATENATE_SECTION_SHORTOPTIONS(CMDLINEFLAGS_SECTION_PREFIX)
+#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_NAME  CMDLINEFLAGS_XSTR(CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID)
+#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_START CMDLINEFLAGS_CONCATENATE_SECTION_START(CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID)
+#define CMDLINEFLAGS_SHORTOPTIONS_SECTION_END   CMDLINEFLAGS_CONCATENATE_SECTION_END(CMDLINEFLAGS_SHORTOPTIONS_SECTION_ID)
 
-#define CMDLINEFLAGS_LONGOPTIONS_SECTION_ID      CMDLINEFLAGS_CONCATENATE_SECTION_LONGOPTIONS(CMDLINEFLAGS_SECTION_PREFIX)
-#define CMDLINEFLAGS_LONGOPTIONS_SECTION_NAME    CMDLINEFLAGS_XSTR(CMDLINEFLAGS_LONGOPTIONS_SECTION_ID)
-#define CMDLINEFLAGS_LONGOPTIONS_SECTION_START   CMDLINEFLAGS_CONCATENATE_SECTION_START(CMDLINEFLAGS_LONGOPTIONS_SECTION_ID)
-#define CMDLINEFLAGS_LONGOPTIONS_SECTION_END     CMDLINEFLAGS_CONCATENATE_SECTION_END(CMDLINEFLAGS_LONGOPTIONS_SECTION_ID)
+#define CMDLINEFLAGS_LONGOPTIONS_SECTION_ID    CMDLINEFLAGS_CONCATENATE_SECTION_LONGOPTIONS(CMDLINEFLAGS_SECTION_PREFIX)
+#define CMDLINEFLAGS_LONGOPTIONS_SECTION_NAME  CMDLINEFLAGS_XSTR(CMDLINEFLAGS_LONGOPTIONS_SECTION_ID)
+#define CMDLINEFLAGS_LONGOPTIONS_SECTION_START CMDLINEFLAGS_CONCATENATE_SECTION_START(CMDLINEFLAGS_LONGOPTIONS_SECTION_ID)
+#define CMDLINEFLAGS_LONGOPTIONS_SECTION_END   CMDLINEFLAGS_CONCATENATE_SECTION_END(CMDLINEFLAGS_LONGOPTIONS_SECTION_ID)
 
 #define CMDLINEFLAGS_GLOBAL_MODULE _
 
@@ -70,6 +70,7 @@
 #define CMDLINEFLAGS_NO_ARGUMENT       0
 #define CMDLINEFLAGS_REQUIRED_ARGUMENT 1
 
+// clang-format off
 #define __CMDLINEFLAGS_DEFINE_SHORT_OPTION_A(_module_, _shortoption_, _flags_, _function_, _help_)             \
     const struct cmdlineflags cmdlineflags_shortoptions_ ## _module_ ## _ ## _shortoption_                     \
         [sizeof(#_shortoption_) == 2 ? 1 : -1]                                                                 \
@@ -129,51 +130,51 @@
             .help = _help_,                                                                                    \
             .sibbling = cmdlineflags_longoptions_ ## _module_ ## _ ## _longoption_                             \
         }}
+// clang-format on
 
-#define CMDLINEFLAGS_DEFINE_SHORT_OPTION(_module_, _shortoption_, _flags_, _function_, _help_)                 \
+#define CMDLINEFLAGS_DEFINE_SHORT_OPTION(_module_, _shortoption_, _flags_, _function_, _help_) \
     __CMDLINEFLAGS_DEFINE_SHORT_OPTION_A(_module_, _shortoption_, _flags_, _function_, _help_)
 
-#define CMDLINEFLAGS_DEFINE_LONG_OPTION(_module_, _longoption_, _flags_, _function_, _help_)                   \
+#define CMDLINEFLAGS_DEFINE_LONG_OPTION(_module_, _longoption_, _flags_, _function_, _help_) \
     __CMDLINEFLAGS_DEFINE_LONG_OPTION_A(_module_, _longoption_, _flags_, _function_, _help_)
 
-#define CMDLINEFLAGS_DEFINE(_module_, _shortoption_, _longoption_, _flags_, _function_, _help_)                \
-    __CMDLINEFLAGS_DEFINE_LONG_OPTION_B(_module_, _longoption_, _flags_, _function_, _help_);                  \
+#define CMDLINEFLAGS_DEFINE(_module_, _shortoption_, _longoption_, _flags_, _function_, _help_) \
+    __CMDLINEFLAGS_DEFINE_LONG_OPTION_B(_module_, _longoption_, _flags_, _function_, _help_);   \
     __CMDLINEFLAGS_DEFINE_SHORT_OPTION_B(_module_, _shortoption_, _flags_, _function_, _help_, _longoption_)
 
 /*===========================================================================*\
  * global type definitions
 \*===========================================================================*/
-struct cmdlineflags_cfg
-{
-     /* == 0 - do not,
+struct cmdlineflags_cfg {
+    /* == 0 - do not,
         != 0 - do emit debug messages */
     int emit_debug_messages;
 };
 
-enum cmdlineflags_type
-{
+enum cmdlineflags_type {
     CMDLINEFLAGS_SHORTOPTION,
     CMDLINEFLAGS_LONGOPTION
 };
 
-struct cmdlineflags_option
-{
+struct cmdlineflags_option {
     enum cmdlineflags_type type;
+
     union {
         char shortoption;
         const char* longoption;
     } u;
 };
 
-struct cmdlineflags
-{
+struct cmdlineflags {
     const char* module;
     struct cmdlineflags_option option;
     unsigned flags;
+
     union {
         int (*f0)(const struct cmdlineflags_option* option);
         int (*f1)(const struct cmdlineflags_option* option, const char* argument);
     } u;
+
     const char* help;
     const struct cmdlineflags* sibbling;
 } __attribute__((aligned(CMDLINEFLAGS_ALIGN)));
@@ -214,7 +215,7 @@ LTS_EXTERN const char* cmdlineflags_version(void);
  * @note Please see also unistd.h, and/or getopt.h.
  * @return Index (into argv) of the first nonoptions argument.
  */
-LTS_EXTERN int cmdlineflags_parse(int argc, char * const argv[]);
+LTS_EXTERN int cmdlineflags_parse(int argc, char* const argv[]);
 
 /**
  * Copies help message to the buffer pointed to by 'msg' argument.

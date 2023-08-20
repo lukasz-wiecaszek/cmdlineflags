@@ -23,8 +23,9 @@
 /*===========================================================================*\
  * preprocessor #define constants and macros
 \*===========================================================================*/
-#define PRINT_ERROR(...) \
-    if (cmdlineflags_cfg.emit_debug_messages) fprintf(stderr, __VA_ARGS__)
+#define PRINT_ERROR(...)                      \
+    if (cmdlineflags_cfg.emit_debug_messages) \
+        fprintf(stderr, __VA_ARGS__)
 
 /*===========================================================================*\
  * local type definitions
@@ -45,6 +46,7 @@ static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_option
 /*===========================================================================*\
  * local (internal linkage) object definitions
 \*===========================================================================*/
+// clang-format off
 static const struct cmdlineflags cmdlineflags_short_options_0
     __attribute__((__section__(CMDLINEFLAGS_SHORTOPTIONS_SECTION_NAME)))
     __attribute__((__used__))
@@ -54,6 +56,7 @@ static const struct cmdlineflags cmdlineflags_longoptions_0
     __attribute__((__section__(CMDLINEFLAGS_LONGOPTIONS_SECTION_NAME)))
     __attribute__((__used__))
     __attribute__((aligned(CMDLINEFLAGS_ALIGN))) = {0};
+// clang-format on
 
 static struct cmdlineflags_cfg cmdlineflags_cfg = {
     .emit_debug_messages = 1,
@@ -98,8 +101,7 @@ static inline char* cmdlineflags_underscore2dash(char* dest, const char* src, si
     return dest;
 }
 
-static inline const struct cmdlineflags*
-    cmdlineflags_get_shortoption(const char* module, char shortoption)
+static inline const struct cmdlineflags* cmdlineflags_get_shortoption(const char* module, char shortoption)
 {
     const struct cmdlineflags* const cmdlineflags_start_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_START;
     const struct cmdlineflags* const cmdlineflags_end_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_END;
@@ -116,8 +118,7 @@ static inline const struct cmdlineflags*
     return NULL;
 }
 
-static inline const struct cmdlineflags*
-    cmdlineflags_get_longoption(const char* module, const char* longoption)
+static inline const struct cmdlineflags* cmdlineflags_get_longoption(const char* module, const char* longoption)
 {
     const struct cmdlineflags* const cmdlineflags_start_addr = &CMDLINEFLAGS_LONGOPTIONS_SECTION_START;
     const struct cmdlineflags* const cmdlineflags_end_addr = &CMDLINEFLAGS_LONGOPTIONS_SECTION_END;
@@ -152,7 +153,7 @@ const char* cmdlineflags_version(void)
     return PROJECT_VER;
 }
 
-int cmdlineflags_parse(int argc, char * const argv[])
+int cmdlineflags_parse(int argc, char* const argv[])
 {
     int argv_index;
     const char* module;
@@ -186,8 +187,8 @@ int cmdlineflags_parse(int argc, char * const argv[])
                 const char* longoption;
                 const struct cmdlineflags* cmdlineflags;
 
-                for (longoption_end = longoption_start;
-                    *longoption_end != '\0' && *longoption_end != '='; longoption_end++);
+                for (longoption_end = longoption_start; *longoption_end != '\0' && *longoption_end != '='; longoption_end++)
+                    ;
 
                 longoption = strndup(longoption_start, longoption_end - longoption_start);
                 if (!longoption)
@@ -208,8 +209,7 @@ int cmdlineflags_parse(int argc, char * const argv[])
                             if (cmdlineflags->u.f1(&cmdlineflags->option, longoption_end + 1) != 0)
                                 return free((void*)longoption), argv_index + 1;
                         }
-                        else
-                        if ((argv_index + 1) < argc) {
+                        else if ((argv_index + 1) < argc) {
                             if (cmdlineflags->u.f1(&cmdlineflags->option, argv[++argv_index]) != 0)
                                 return free((void*)longoption), argv_index + 1;
                         }
@@ -249,8 +249,7 @@ int cmdlineflags_parse(int argc, char * const argv[])
                                    we must advance to the next element now. */
                                 break;
                             }
-                            else
-                            if ((argv_index + 1) < argc) {
+                            else if ((argv_index + 1) < argc) {
                                 if (cmdlineflags->u.f1(&cmdlineflags->option, argv[++argv_index]) != 0)
                                     return argv_index + 1;
                             }
@@ -339,8 +338,7 @@ static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdli
     if (status) {
         if (!strcmp(l->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE)))
             return -1;
-        else
-        if (!strcmp(r->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE)))
+        else if (!strcmp(r->module, CMDLINEFLAGS_XSTR(CMDLINEFLAGS_GLOBAL_MODULE)))
             return +1;
         else
             return status;
@@ -348,12 +346,10 @@ static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdli
 
     if ((l->option.type == CMDLINEFLAGS_SHORTOPTION) && ((r->option.type == CMDLINEFLAGS_LONGOPTION)))
         status = l->option.u.shortoption - r->option.u.longoption[0];
-    else
-    if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_SHORTOPTION))) {
+    else if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_SHORTOPTION))) {
         status = l->option.u.longoption[0] - r->option.u.shortoption;
     }
-    else
-    if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_LONGOPTION)))
+    else if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_LONGOPTION)))
         status = strcmp(l->option.u.longoption, r->option.u.longoption);
     else
         status = l->option.u.shortoption - r->option.u.shortoption;
@@ -361,8 +357,7 @@ static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdli
     return status;
 }
 
-static void cmdlinefags_add(
-    const struct cmdlineflags** cmdlineflags, size_t n_options, const struct cmdlineflags* it)
+static void cmdlinefags_add(const struct cmdlineflags** cmdlineflags, size_t n_options, const struct cmdlineflags* it)
 {
     size_t i;
 
@@ -374,8 +369,7 @@ static void cmdlinefags_add(
     cmdlineflags[i] = it;
 }
 
-static int cmdlinefags_build_help_msg(
-    const struct cmdlineflags** cmdlineflags, size_t n_options, char* msg, unsigned size)
+static int cmdlinefags_build_help_msg(const struct cmdlineflags** cmdlineflags, size_t n_options, char* msg, unsigned size)
 {
     int n;
     char prefix[128];
@@ -413,24 +407,19 @@ static int cmdlinefags_build_help_msg(
             const struct cmdlineflags* sibbling = it->sibbling;
             if (sibbling == NULL) {
                 if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
-                    status = snprintf(prefix, sizeof(prefix), "-%c",
-                        it->option.u.shortoption);
+                    status = snprintf(prefix, sizeof(prefix), "-%c", it->option.u.shortoption);
                 else
-                    status = snprintf(prefix, sizeof(prefix), "-%c <arg>",
-                        it->option.u.shortoption);
+                    status = snprintf(prefix, sizeof(prefix), "-%c <arg>", it->option.u.shortoption);
             }
             else {
                 cmdlineflags_underscore2dash(longoption, sibbling->option.u.longoption, sizeof(longoption));
                 if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
-                    status = snprintf(prefix, sizeof(prefix), "-%c, --%s",
-                        it->option.u.shortoption, longoption);
+                    status = snprintf(prefix, sizeof(prefix), "-%c, --%s", it->option.u.shortoption, longoption);
                 else
-                    status = snprintf(prefix, sizeof(prefix), "-%c, --%s <arg>",
-                        it->option.u.shortoption, longoption);
+                    status = snprintf(prefix, sizeof(prefix), "-%c, --%s <arg>", it->option.u.shortoption, longoption);
             }
         }
-        else
-        if (it->option.type == CMDLINEFLAGS_LONGOPTION) {
+        else if (it->option.type == CMDLINEFLAGS_LONGOPTION) {
             cmdlineflags_underscore2dash(longoption, it->option.u.longoption, sizeof(longoption));
             if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
                 status = snprintf(prefix, sizeof(prefix), "--%s", longoption);
@@ -464,11 +453,11 @@ static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_option
 {
     const struct cmdlineflags* const shortoptions_start_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_START;
     const struct cmdlineflags* const shortoptions_end_addr = &CMDLINEFLAGS_SHORTOPTIONS_SECTION_END;
-    ptrdiff_t n_shortoptions_distance =  shortoptions_end_addr - shortoptions_start_addr;
+    ptrdiff_t n_shortoptions_distance = shortoptions_end_addr - shortoptions_start_addr;
 
     const struct cmdlineflags* const longoptions_start_addr = &CMDLINEFLAGS_LONGOPTIONS_SECTION_START;
     const struct cmdlineflags* const longoptions_end_addr = &CMDLINEFLAGS_LONGOPTIONS_SECTION_END;
-    ptrdiff_t n_longoptions_distance =  longoptions_end_addr - longoptions_start_addr;
+    ptrdiff_t n_longoptions_distance = longoptions_end_addr - longoptions_start_addr;
 
     if (--n_shortoptions_distance < 0)
         return NULL;
@@ -479,8 +468,7 @@ static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_option
     size_t distance = n_shortoptions_distance + n_longoptions_distance;
     size_t n = 0;
 
-    const struct cmdlineflags** cmdlineflags =
-        calloc(distance, sizeof(struct cmdlineflags*));
+    const struct cmdlineflags** cmdlineflags = calloc(distance, sizeof(struct cmdlineflags*));
     if (cmdlineflags != NULL) {
         const struct cmdlineflags* it;
 
@@ -492,7 +480,6 @@ static const struct cmdlineflags** cmdlineflags_combine_options(size_t* n_option
                     cmdlineflags[n++] = it;
             }
         }
-
 
         for (it = longoptions_start_addr; it < longoptions_end_addr; ++it) {
             if ((it->module != NULL) && (it->sibbling != it)) {
