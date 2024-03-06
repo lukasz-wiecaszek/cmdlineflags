@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.14) # it's just a nice number
 
 project(cmdlineflags VERSION 1.0.1)
 
@@ -21,6 +21,8 @@ message(STATUS "CMAKE_SOURCE_DIR:         " ${CMAKE_SOURCE_DIR})
 # this is the directory where the currently processed CMakeLists.txt is located in
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(CMAKE_C_STANDARD 11)
+
 option(BUILD_SHARED_LIBS        "Build shared libraries" ON)
 option(BUILD_CMDLINEFLAGS_DOCS  "Build documentation" OFF)
 option(BUILD_CMDLINEFLAGS_TESTS "Enable testing" OFF)
@@ -35,11 +37,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 message(STATUS "CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
-string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
 add_compile_options(-Wall -Werror -pedantic)
 
-if("${CMAKE_BUILD_TYPE_LOWER}" STREQUAL "debug")
+if(CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug$")
     add_compile_options(-ggdb3)
 endif()
 
