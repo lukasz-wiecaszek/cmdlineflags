@@ -23,9 +23,11 @@
 /*===========================================================================*\
  * preprocessor #define constants and macros
 \*===========================================================================*/
+// clang-format off
 #define PRINT_ERROR(...)                      \
     if (cmdlineflags_cfg.emit_debug_messages) \
         fprintf(stderr, __VA_ARGS__)
+// clang-format on
 
 /*===========================================================================*\
  * local type definitions
@@ -178,8 +180,7 @@ int cmdlineflags_parse(int argc, char* const argv[])
                 module = arg;
             else
                 return argv_index;
-        }
-        else {
+        } else {
             bool is_longoption = cmdlineflags_is_longoption(arg);
             if (is_longoption) {
                 const char* longoption_start = arg + 2; /* Skip the initial '--' */
@@ -200,35 +201,28 @@ int cmdlineflags_parse(int argc, char* const argv[])
                         if (*longoption_end == '\0') {
                             if (cmdlineflags->u.f0(&cmdlineflags->option) != 0)
                                 return free((void*)longoption), argv_index + 1;
-                        }
-                        else
+                        } else
                             PRINT_ERROR("%s: option '--%s' doesn't allow an argument\n", argv[0], longoption);
-                    }
-                    else {
+                    } else {
                         if (*longoption_end != '\0') {
                             if (cmdlineflags->u.f1(&cmdlineflags->option, longoption_end + 1) != 0)
                                 return free((void*)longoption), argv_index + 1;
-                        }
-                        else if ((argv_index + 1) < argc) {
+                        } else if ((argv_index + 1) < argc) {
                             if (cmdlineflags->u.f1(&cmdlineflags->option, argv[++argv_index]) != 0)
                                 return free((void*)longoption), argv_index + 1;
-                        }
-                        else
+                        } else
                             PRINT_ERROR("%s: option '--%s' requires an argument\n", argv[0], longoption);
                     }
-                }
-                else {
+                } else {
                     if (module) {
                         PRINT_ERROR("%s: unrecognized option '--%s' for '%s' module\n", argv[0], longoption, module);
-                    }
-                    else {
+                    } else {
                         PRINT_ERROR("%s: unrecognized option '--%s'\n", argv[0], longoption);
                     }
                 }
 
                 free((void*)longoption);
-            }
-            else {
+            } else {
                 const char* nextchar = arg + 1; /* Skip the initial '-' */
                 const struct cmdlineflags* cmdlineflags;
                 char c;
@@ -239,8 +233,7 @@ int cmdlineflags_parse(int argc, char* const argv[])
                         if (cmdlineflags->flags == CMDLINEFLAGS_NO_ARGUMENT) {
                             if (cmdlineflags->u.f0(&cmdlineflags->option) != 0)
                                 return argv_index + 1;
-                        }
-                        else {
+                        } else {
                             /* This is an option that requires an argument. */
                             if (*nextchar != '\0') {
                                 if (cmdlineflags->u.f1(&cmdlineflags->option, nextchar) != 0)
@@ -248,20 +241,16 @@ int cmdlineflags_parse(int argc, char* const argv[])
                                 /* If we end this ARGV-element by taking the rest as an argument,
                                    we must advance to the next element now. */
                                 break;
-                            }
-                            else if ((argv_index + 1) < argc) {
+                            } else if ((argv_index + 1) < argc) {
                                 if (cmdlineflags->u.f1(&cmdlineflags->option, argv[++argv_index]) != 0)
                                     return argv_index + 1;
-                            }
-                            else
+                            } else
                                 PRINT_ERROR("%s: option '-%c' requires an argument\n", argv[0], c);
                         }
-                    }
-                    else {
+                    } else {
                         if (module) {
                             PRINT_ERROR("%s: unrecognized option '-%c' for '%s' module\n", argv[0], c, module);
-                        }
-                        else {
+                        } else {
                             PRINT_ERROR("%s: unrecognized option '-%c'\n", argv[0], c);
                         }
                     }
@@ -280,9 +269,8 @@ int cmdlineflags_get_help_msg(char* msg, unsigned size, bool sort)
     char null_msg_buffer[1];
     const struct cmdlineflags** cmdlineflags;
 
-    if (msg == NULL) {
+    if (msg == NULL)
         msg = null_msg_buffer;
-    }
 
     cmdlineflags = cmdlineflags_combine_options(&n_options, sort);
     if (cmdlineflags == NULL)
@@ -348,8 +336,7 @@ static int cmdlineflags_compare(const struct cmdlineflags* l, const struct cmdli
         status = l->option.u.shortoption - r->option.u.longoption[0];
     else if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_SHORTOPTION))) {
         status = l->option.u.longoption[0] - r->option.u.shortoption;
-    }
-    else if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_LONGOPTION)))
+    } else if ((l->option.type == CMDLINEFLAGS_LONGOPTION) && ((r->option.type == CMDLINEFLAGS_LONGOPTION)))
         status = strcmp(l->option.u.longoption, r->option.u.longoption);
     else
         status = l->option.u.shortoption - r->option.u.shortoption;
@@ -397,8 +384,7 @@ static int cmdlinefags_build_help_msg(const struct cmdlineflags** cmdlineflags, 
                 if (n < size) {
                     remaining -= status;
                     msg += status;
-                }
-                else
+                } else
                     remaining = 0;
             }
         }
@@ -410,23 +396,20 @@ static int cmdlinefags_build_help_msg(const struct cmdlineflags** cmdlineflags, 
                     status = snprintf(prefix, sizeof(prefix), "-%c", it->option.u.shortoption);
                 else
                     status = snprintf(prefix, sizeof(prefix), "-%c <arg>", it->option.u.shortoption);
-            }
-            else {
+            } else {
                 cmdlineflags_underscore2dash(longoption, sibbling->option.u.longoption, sizeof(longoption));
                 if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
                     status = snprintf(prefix, sizeof(prefix), "-%c, --%s", it->option.u.shortoption, longoption);
                 else
                     status = snprintf(prefix, sizeof(prefix), "-%c, --%s <arg>", it->option.u.shortoption, longoption);
             }
-        }
-        else if (it->option.type == CMDLINEFLAGS_LONGOPTION) {
+        } else if (it->option.type == CMDLINEFLAGS_LONGOPTION) {
             cmdlineflags_underscore2dash(longoption, it->option.u.longoption, sizeof(longoption));
             if (it->flags == CMDLINEFLAGS_NO_ARGUMENT)
                 status = snprintf(prefix, sizeof(prefix), "--%s", longoption);
             else
                 status = snprintf(prefix, sizeof(prefix), "--%s <arg>", longoption);
-        }
-        else {
+        } else {
             /* do nothing */
         }
 
@@ -441,8 +424,7 @@ static int cmdlinefags_build_help_msg(const struct cmdlineflags** cmdlineflags, 
         if (n < size) {
             remaining -= status;
             msg += status;
-        }
-        else
+        } else
             remaining = 0;
     }
 
