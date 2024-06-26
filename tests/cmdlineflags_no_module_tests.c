@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 /**
- * @file cmdlineflags_module_tests.c
+ * @file cmdlineflags_no_module_tests.c
  *
  * @author Lukasz Wiecaszek <lukasz.wiecaszek@gmail.com>
  */
@@ -12,10 +12,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define COMPARE_WITH_GETOPT
+
+#if defined(COMPARE_WITH_GETOPT)
+#include <getopt.h>
+#endif
+
 /*===========================================================================*\
  * project header files
 \*===========================================================================*/
-#include <cmdlineflags.h>
+#include <cmdlineflags/cmdlineflags.h>
 
 /*===========================================================================*\
  * preprocessor #define constants and macros
@@ -42,27 +48,22 @@ static int c_option_expected_cnt = 0;
 CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, j, expected_c_cnt, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_expected_cnt_options, "sets expected c counter");
 
-static int h_option_actual_cnt = 0;
-static int handle_h_option(const struct cmdlineflags_option* option);
-CMDLINEFLAGS_DEFINE(CMDLINEFLAGS_GLOBAL_MODULE, h, help, \
-   CMDLINEFLAGS_NO_ARGUMENT, handle_h_option, "prints help message");
-
 static int v_option_actual_cnt = 0;
 static int handle_v_option(const struct cmdlineflags_option* option);
 
-CMDLINEFLAGS_DEFINE_SHORT_OPTION(module_name, v, \
+CMDLINEFLAGS_DEFINE_SHORT_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, v, \
    CMDLINEFLAGS_NO_ARGUMENT, handle_v_option, "prints version information");
 
-CMDLINEFLAGS_DEFINE_LONG_OPTION(module_name, version, \
+CMDLINEFLAGS_DEFINE_LONG_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, version, \
    CMDLINEFLAGS_NO_ARGUMENT, handle_v_option, "prints version information");
 
 static int c_option_actual_cnt = 0;
 static int handle_c_option(const struct cmdlineflags_option* option, const char* argument);
 
-CMDLINEFLAGS_DEFINE_SHORT_OPTION(module_name, c, \
+CMDLINEFLAGS_DEFINE_SHORT_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, c, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_c_option, "configuration file");
 
-CMDLINEFLAGS_DEFINE_LONG_OPTION(module_name, configuration, \
+CMDLINEFLAGS_DEFINE_LONG_OPTION(CMDLINEFLAGS_GLOBAL_MODULE, configuration, \
    CMDLINEFLAGS_REQUIRED_ARGUMENT, handle_c_option, "configuration file");
 
 /*===========================================================================*\
@@ -112,12 +113,28 @@ int main(int argc, char* argv[])
 
         index = cmdlineflags_parse(argc, argv);
         fprintf(stdout, "cmdlineflags_parse: first nonoption argument: %d\n", index);
-        fprintf(stdout, "cmdlineflags_parse: h_option_actual_cnt: %d\n", h_option_actual_cnt);
         fprintf(stdout, "cmdlineflags_parse: v_option_actual_cnt: %d\n", v_option_actual_cnt);
         fprintf(stdout, "cmdlineflags_parse: c_option_actual_cnt: %d\n", c_option_actual_cnt);
 
-        if (h_option_actual_cnt != 1)
-            break;
+#if defined(COMPARE_WITH_GETOPT)
+        static const struct option long_options[] = {
+            {"expected_v_cnt", required_argument, 0, 'i'},
+            {"expected_c_cnt", required_argument, 0, 'j'},
+            {"version",        no_argument,       0, 'v'},
+            {"configuration",  required_argument, 0, 'c'},
+            {0, 0, 0, 0}
+        };
+
+        for (;;) {
+            int c = getopt_long(argc, argv, "+i:j:vc:", long_options, 0);
+            if (-1 == c)
+                break;
+
+            fprintf(stdout, "getopt_long: '%c', optarg: '%s'\n", c, optarg);
+        }
+
+        fprintf(stdout, "getopt_long: first nonoption argument: %d\n", optind);
+#endif
 
         if (v_option_actual_cnt != v_option_expected_cnt)
             break;
@@ -181,13 +198,6 @@ static int handle_expected_cnt_options(const struct cmdlineflags_option* option,
     }
 
     return retval;
-}
-
-static int handle_h_option(const struct cmdlineflags_option* option)
-{
-    fprintf(stdout, "%s()\n", __func__);
-    h_option_actual_cnt++;
-    return 0;
 }
 
 static int handle_v_option(const struct cmdlineflags_option* option)

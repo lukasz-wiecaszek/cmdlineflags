@@ -18,7 +18,7 @@
  * project header files
 \*===========================================================================*/
 #include <version.h>
-#include <cmdlineflags.h>
+#include <cmdlineflags/cmdlineflags.h>
 
 /*===========================================================================*\
  * preprocessor #define constants and macros

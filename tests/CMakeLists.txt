@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.14) # it's just a nice number
 
 project(cmdlineflags_tests VERSION 1.0.0)
 
@@ -21,6 +21,8 @@ message(STATUS "CMAKE_SOURCE_DIR:         " ${CMAKE_SOURCE_DIR})
 # this is the directory where the currently processed CMakeLists.txt is located in
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(CMAKE_C_STANDARD 11)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
          "Choose the type of build. Options are: {Release, Debug}." FORCE)
@@ -30,18 +32,8 @@ message(STATUS "CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
 
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} --coverage)
 
-set(CMDLINEFLAGS_TESTS_API_DIR
-)
-
-set(CMDLINEFLAGS_TESTS_INC_DIR
-)
-
-set(CMDLINEFLAGS_TESTS_SRC_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 function(add_test_executable name)
-    add_executable(${name} ${name})
+    add_executable(${name} ${name}.c)
     target_link_libraries(${name} PRIVATE cmdlineflags)
 endfunction()
 

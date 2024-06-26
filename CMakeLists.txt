@@ -48,16 +48,12 @@ if(BUILD_CMDLINEFLAGS_TESTS)
     add_compile_options(-fprofile-arcs -ftest-coverage)
 endif()
 
-set(CMDLINEFLAGS_API_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/api
+set(CMDLINEFLAGS_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-set(CMDLINEFLAGS_INC_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc
-)
-
-set(CMDLINEFLAGS_SRC_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+set(CMDLINEFLAGS_LIB_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib
 )
 
 configure_file(version.h.in version.h)
@@ -66,11 +62,11 @@ configure_file(version.h.in version.h)
 #                             TARGET(S) DEFINITION(S)
 #------------------------------------------------------------------------------
 set(CMDLINEFLAGS_PUBLIC_HEADERS
-    ${CMDLINEFLAGS_API_DIR}/cmdlineflags.h
+    ${CMDLINEFLAGS_INCLUDE_DIR}/${PROJECT_NAME}/cmdlineflags.h
 )
 
 set(CMDLINEFLAGS_SRCS
-    ${CMDLINEFLAGS_SRC_DIR}/cmdlineflags.c
+    ${CMDLINEFLAGS_LIB_DIR}/cmdlineflags.c
 )
 
 add_library(${PROJECT_NAME}
@@ -79,11 +75,10 @@ add_library(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        $<BUILD_INTERFACE:${CMDLINEFLAGS_API_DIR}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+        $<BUILD_INTERFACE:${CMDLINEFLAGS_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR} // this is the directory where 'version.h' will be configured
-        ${CMDLINEFLAGS_INC_DIR}
 )
 
 set_target_properties(${PROJECT_NAME}
@@ -137,6 +132,7 @@ endif(DOXYGEN_FOUND)
 #                                    TESTS
 #------------------------------------------------------------------------------
 if(BUILD_CMDLINEFLAGS_TESTS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE gcov)
     enable_testing()
-    add_subdirectory(tst)
+    add_subdirectory(tests)
 endif(BUILD_CMDLINEFLAGS_TESTS)
